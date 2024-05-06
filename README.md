@@ -6,4 +6,4 @@ A program for tracking auctions and bids. It is possible to filter by category. 
 Program runs by deafult on http://127.0.0.1:5000
 
 To run this program, you must run:
-# python bacchus.py
+### python bacchus.py
