@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Items List</title>
+</head>
+<body>
+    <h1>Items List</h1>
+
+    <label for="category">Filter by Category:</label>
+    <select name="category" id="category">
+    </select>
+
+    <ul id="itemsList">
+    </ul>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            var items = JSON.parse('{{ items | tojson | safe }}');
+            
+            var categories = ['all'];
+            items.forEach(function(item) {
+                if (!categories.includes(item['productCategory'])) {
+                    categories.push(item['productCategory']);
+                }
+            });
+            var categoryDropdown = document.getElementById('category');
+            categories.forEach(function(category) {
+                var option = document.createElement('option');
+                option.value = category;
+                option.textContent = category.charAt(0).toUpperCase() + category.slice(1);
+                categoryDropdown.appendChild(option);
+            });
+
+            categoryDropdown.addEventListener('change', function() {
+                var selectedCategory = this.value;
+                var filteredItems = items.filter(function(item) {
+                    return selectedCategory === 'all' || item['productCategory'] === selectedCategory;
+                });
+                renderItems(filteredItems);
+            });
+
+            renderItems(items);
+        });
+
+        function renderItems(items) {
+            var itemsList = document.getElementById('itemsList');
+            itemsList.innerHTML = '';
+            items.forEach(function(item) {
+                var li = document.createElement('li');
+                li.innerHTML = `
+                    <strong>Name:</strong> ${item['productName']}<br>
+                    <strong>Description:</strong> ${item['productDescription']}<br>
+                    <strong>Category:</strong> ${item['productCategory']}<br>
+                    <strong>Bidding End Date:</strong> ${item['biddingEndDate']}<br>
+                    <form action="{{ url_for('make_bid') }}" method="post">
+                        <input type="hidden" name="productId" value="${item['productId']}">
+                        <label for="fname">Name:</label>
+                        <input type="text" name="name"><br>
+                        <label for="lname">Sum:</label>
+                        <input type="text" name="sum"><br>
+                        <button type="submit">Make BID</button>
+                    </form>
+                    <p></p>
+                `;
+                itemsList.appendChild(li);
+            });
+        }
+    </script>
+</body>
+</html>
